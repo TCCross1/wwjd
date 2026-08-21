@@ -1,0 +1,64 @@
+{
+  "summary": "W.W.J.D. iteration 2 backend: 33/33 pytest tests PASS against the public preview URL (10 new + 23 regression). All new features verified: /api/donations/checkout creates real Stripe payment-mode sessions with inline price_data (25.00 -> cs_test_... URL); amount validation returns 400 for <$1 (0.50) and >$100k (200000); anonymous donations allowed; /api/donations/status/{id} returns pending payment_status, donor_name, amount (dollars) and blessing=null while pending, 404 when missing; /api/angels returns {angels:[], total:0} with mongo _id stripped. Updated gift flow: /api/gifts/checkout succeeds with recipient_phone and blank recipient_email (email now optional), phone is persisted (verified via /api/gifts/mine) but hidden by /api/payments/status while pending (activation_code AND recipient_phone both null until paid); missing recipient_name still returns 422 (pydantic). Regression: admin login/me, fresh-user 403 gating, Claude Sonnet 4.6 counsel SSE stream (Jesus-grounded with Matthew refs), pray-this-with-me, save-counsel round-trip, diary CRUD + per-user scoping, gift activation error paths, testimonies upload + /api/files serving all still pass. Skills loaded: ai-testing-core (LLM feature not-in-scope-this-iteration for changes; sanity re-run still pass).",
+  "feature_verdicts": [
+    "donation checkout POST /api/donations/checkout - pass - HTTP 200, cs_test_... session_id + https://checkout.stripe.com URL; payment_transactions doc inserted with type='donation' payment_status='pending' - pytest TestDonations::test_donation_checkout_creates_session",
+    "donation validation POST /api/donations/checkout amount=0.5 -> 400 - pass",
+    "donation validation POST /api/donations/checkout amount=200000 -> 400 - pass",
+    "donation anonymous (no auth) - pass - HTTP 200",
+    "donation status GET /api/donations/status/{id} - pass - payment_status='pending', donor_name='TEST_Grace', amount=25.0, blessing=null - TestDonations::test_donation_persisted_as_donation_type",
+    "donation status not found - pass - HTTP 404",
+    "angels wall GET /api/angels - pass - {angels: [], total: 0} shape; no mongo _id leaked - TestDonations::test_angels_wall_shape",
+    "gift checkout with phone POST /api/gifts/checkout (email='') - pass - cs_test_ session + checkout URL created - TestGiftPhone::test_gift_checkout_with_phone_no_email",
+    "gift stores phone & hides it until paid - pass - /api/payments/status has recipient_phone=null + activation_code=null while pending; /api/gifts/mine record has recipient_phone='5551234567' - TestGiftPhone::test_gift_stores_phone_and_hidden_while_pending",
+    "gift checkout missing name -> 422 - pass - pydantic model rejects empty payload - TestGiftPhone::test_gift_checkout_missing_name_422",
+    "regression: auth (register/login/me/duplicate/invalid) - pass (4/4)",
+    "regression: daily scripture - pass",
+    "regression: counsel SSE stream (Claude Sonnet 4.6) - pass - not-in-scope this iteration but re-verified end-to-end; skill: ai-testing-llm",
+    "regression: pray-this + gating - pass (2/2)",
+    "regression: save-counsel round-trip - pass",
+    "regression: diary CRUD + user scoping - pass (2/2)",
+    "regression: gift checkout / status / activate error paths - pass (5/5)",
+    "regression: testimonies upload + /api/files serve - pass (5/5)"
+  ],
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "GET /api/donations/status/{id}", "issue": "Returns raw dollar amount as float (25.0) but the pending amount comes from stored cents/100. Fine, just noting that a $0.99 amount would be blocked at checkout by cents<100 check, so the /100 division is safe."},
+      {"endpoint": "POST /api/donations/checkout", "issue": "`amount` is a float — accepts negative values only implicitly (cents = int(round(neg*100)) would be < 100 so 400 fires). Consider explicit min via Pydantic conint/Field(gt=0) for clarity, but functional today."},
+      {"endpoint": "GET /api/angels", "issue": "Unpaginated to_list(500) hardcoded; fine for MVP but will eventually truncate."},
+      {"endpoint": "POST /api/donations/checkout", "issue": "donor_name is sliced [:80] in Stripe metadata but stored full-length in payment_transactions.donor_name — angel wall uses stored value, so a very long name could leak past the intended cap."},
+      {"endpoint": "GET /api/payments/status/{id}", "issue": "recipient_name is exposed even while pending (not gated by `paid`) — likely intentional (giver can see who they addressed the gift to on the success page), but note it differs from recipient_phone / activation_code which are hidden until paid."},
+      {"endpoint": "POST /api/gifts/checkout", "issue": "recipient_phone is stored as raw string with only .strip(); no format normalization (e.g. E.164) or basic digit-length validation. Since the giver texts the link, a garbled phone would just fail silently later."},
+      {"endpoint": "_finalize_paid", "issue": "Uses `db.gifts.update_one({status:'pending'}, ...)`; if a webhook and a status-poll race, only one updates gift status — but the guard in payment_transactions.update_one (payment_status!='paid') already prevents double-angel or double-gift. Safe."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_wwjd_backend.py",
+    "/app/test_reports/pytest/wwjd_results_iter2_full.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "_finalize_paid correctly distinguishes donation vs gift via txn.type and inserts angels only on donation. Logic is idempotent thanks to the payment_status!='paid' guard in the update_one filter. Good.",
+    "BLESSING_SCRIPTURES is chosen at random *at every /donations/status call after paid*, so consecutive polls after payment can show different blessings to the same donor. If product wants a stable blessing per donor, persist the chosen blessing on the payment_transactions or angels record.",
+    "recipient_email is now optional but empty string is stored as ''.lower() (fine) — consider storing None instead of '' for cleanliness so downstream 'if gift.recipient_email' checks work as expected.",
+    "GET /api/angels returns only name+created_at (amount excluded). If the product wants to display a total-raised badge on the wall, expose an aggregate (or a per-angel amount) — currently only `total` count is returned.",
+    "Donation route has no rate limiting; someone could spam POST /api/donations/checkout to create many Stripe sessions (no charge, but noise). Consider a per-IP throttle for MVP hardening.",
+    "server.py has grown to 815 lines. Splitting into routers (auth, counsel, diary, gifts, donations, testimonies) is still recommended (was called out in iter1).",
+    "activate_gift still grants a flat 30 days without extending from an existing subscription_expires_at (call-out from iter1, unchanged)."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_wwjd_backend.py (appended TestDonations + TestGiftPhone classes, +10 tests)"
+  ],
+  "success_rate": {"backend": "100% (33/33)", "frontend": "n/a - not in scope"},
+  "test_credentials": "admin@wwjd.app / Shepherd123! (from /app/memory/test_credentials.md)",
+  "seed_data_creation": "Created ~4 pending Stripe test sessions this run (2 donations from TEST_Grace/TEST_Anon at $25 and $5, 1 gift with phone TEST_John/5551234567, plus regression gift + testimony TEST_Storyteller). None are charged; they stay as unpaid cs_test_ sessions. All test data uses TEST_ prefix or fresh_user_<uuid>@wwjdtest.io emails and can be left in place.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Full suite: `REACT_APP_BACKEND_URL=<preview> pytest tests/test_wwjd_backend.py -v` from /app/backend. It exercises real Stripe test key (creates cs_test_ sessions each run — never charges), real Claude Sonnet 4.6 (~15-30s per SSE turn), real Emergent object storage. To exercise the paid path for donations (which is required to see a real 'angel' inserted and a blessing returned), complete the checkout in a real browser with card 4242 4242 4242 4242 — this is intentionally NOT done headlessly. The _finalize_paid function has been code-reviewed and is correct: donations -> insert angels, gifts -> mark gift status paid, both branches idempotent via update_one guard.",
+  "rca of the issue": "N/A - no bugs found in the tested surface (donation endpoints, gift-with-phone flow, angels endpoint, and regression suite all pass)."
+}

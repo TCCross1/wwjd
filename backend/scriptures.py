@@ -1,0 +1,46 @@
+"""Daily Scripture from the life of Jesus — Gospels with supporting Pastoral application."""
+
+DAILY_SCRIPTURES = [
+    {"quote": "Come to me, all you who are weary and burdened, and I will give you rest.", "reference": "Matthew 11:28", "invitation": "What weight are you carrying today that you have not yet handed to him?"},
+    {"quote": "Blessed are the poor in spirit, for theirs is the kingdom of heaven.", "reference": "Matthew 5:3", "invitation": "Where might your emptiness be the very place he wants to meet you?"},
+    {"quote": "For even the Son of Man did not come to be served, but to serve, and to give his life as a ransom for many.", "reference": "Mark 10:45", "invitation": "Who could you quietly serve today, expecting nothing back?"},
+    {"quote": "Father, forgive them, for they do not know what they are doing.", "reference": "Luke 23:34", "invitation": "Is there a name you have been refusing to release? Could you begin today?"},
+    {"quote": "A new command I give you: Love one another. As I have loved you, so you must love one another.", "reference": "John 13:34", "invitation": "What would love that costs something look like for you this day?"},
+    {"quote": "But I tell you, love your enemies and pray for those who persecute you.", "reference": "Matthew 5:44", "invitation": "Can you say a short prayer for the one who has wounded you?"},
+    {"quote": "Let the little children come to me, and do not hinder them.", "reference": "Mark 10:14", "invitation": "Where do you need to come to him without pretending to have it together?"},
+    {"quote": "I have not come to call the righteous, but sinners to repentance.", "reference": "Luke 5:32", "invitation": "What are you tempted to hide, that he already sees and still draws near to?"},
+    {"quote": "I am the good shepherd. The good shepherd lays down his life for the sheep.", "reference": "John 10:11", "invitation": "Where do you need to trust that you are being led, not abandoned?"},
+    {"quote": "Do not let your hearts be troubled. You believe in God; believe also in me.", "reference": "John 14:1", "invitation": "Name the fear. Then set it, for a moment, in his hands."},
+    {"quote": "Which of you, if your son asks for bread, will give him a stone?", "reference": "Matthew 7:9", "invitation": "What are you afraid to ask the Father for, as though he were unkind?"},
+    {"quote": "Neither do I condemn you. Go now and leave your life of sin.", "reference": "John 8:11", "invitation": "Can you receive both his mercy and his call to walk differently?"},
+    {"quote": "Whoever wants to be first must be the very last, and the servant of all.", "reference": "Mark 9:35", "invitation": "Where is pride asking to be first in you today?"},
+    {"quote": "Consider the ravens: They do not sow or reap, yet God feeds them.", "reference": "Luke 12:24", "invitation": "What worry could you lay down, trusting the Father's care?"},
+    {"quote": "I am the way and the truth and the life.", "reference": "John 14:6", "invitation": "In the decision before you, what would walking his way require?"},
+    {"quote": "Your faith has healed you. Go in peace.", "reference": "Luke 8:48", "invitation": "Where do you long to reach out and simply touch the hem of his garment?"},
+    {"quote": "Whoever wants to save their life will lose it, but whoever loses their life for me will find it.", "reference": "Matthew 16:25", "invitation": "What are you gripping so tightly that it is quietly costing you life?"},
+    {"quote": "Peace I leave with you; my peace I give you. I do not give to you as the world gives.", "reference": "John 14:27", "invitation": "What false peace have you been chasing that only he can truly give?"},
+    {"quote": "This is my body given for you; do this in remembrance of me.", "reference": "Luke 22:19", "invitation": "How does it change today to know you were remembered before you ever remembered him?"},
+    {"quote": "Martha, Martha, you are worried and upset about many things, but few things are needed.", "reference": "Luke 10:41-42", "invitation": "What is the one needed thing you keep crowding out?"},
+    {"quote": "Take heart! It is I. Don't be afraid.", "reference": "Mark 6:50", "invitation": "In the middle of your storm, can you hear him say your name?"},
+    {"quote": "The Son of Man came to seek and to save the lost.", "reference": "Luke 19:10", "invitation": "You are not too far gone to be sought. Where do you feel lost today?"},
+    {"quote": "Freely you have received; freely give.", "reference": "Matthew 10:8", "invitation": "What grace have you been given that you could pass on to another?"},
+    {"quote": "Very truly I tell you, unless a kernel of wheat falls to the ground and dies, it remains only a single seed.", "reference": "John 12:24", "invitation": "What dying might be the beginning of real fruit in you?"},
+    {"quote": "Do not judge, and you will not be judged. Forgive, and you will be forgiven.", "reference": "Luke 6:37", "invitation": "Whom have you quietly put on trial in your heart?"},
+    {"quote": "I am the light of the world. Whoever follows me will never walk in darkness.", "reference": "John 8:12", "invitation": "Where do you most need his light to fall today?"},
+    {"quote": "Watch and pray so that you will not fall into temptation. The spirit is willing, but the flesh is weak.", "reference": "Matthew 26:41", "invitation": "What honest prayer about your weakness could you pray right now?"},
+    {"quote": "Because you have so little faith. Truly I tell you, if you have faith as small as a mustard seed...", "reference": "Matthew 17:20", "invitation": "You do not need great faith today — only a little, placed in him."},
+    {"quote": "Godliness with contentment is great gain.", "reference": "1 Timothy 6:6", "invitation": "Where is discontent stealing the gift of what you already have?"},
+    {"quote": "For God has not given us a spirit of fear, but of power and of love and of a sound mind.", "reference": "2 Timothy 1:7", "invitation": "Which fear needs to be answered today with his love?"},
+    {"quote": "He saved us, not because of righteous things we had done, but because of his mercy.", "reference": "Titus 3:5", "invitation": "Can you rest in mercy rather than performance today?"},
+]
+
+
+BLESSING_SCRIPTURES = [
+    {"quote": "Whoever is generous to the poor lends to the Lord, and he will repay him for his deed.", "reference": "Proverbs 19:17"},
+    {"quote": "Truly I tell you, whatever you did for one of the least of these brothers and sisters of mine, you did for me.", "reference": "Matthew 25:40"},
+    {"quote": "It is more blessed to give than to receive.", "reference": "Acts 20:35"},
+    {"quote": "The generous will themselves be blessed, for they share their food with the poor.", "reference": "Proverbs 22:9"},
+    {"quote": "Each of you should give what you have decided in your heart to give, for God loves a cheerful giver.", "reference": "2 Corinthians 9:7"},
+    {"quote": "Give, and it will be given to you. A good measure, pressed down, shaken together and running over, will be poured into your lap.", "reference": "Luke 6:38"},
+    {"quote": "And do not forget to do good and to share with others, for with such sacrifices God is pleased.", "reference": "Hebrews 13:16"},
+]

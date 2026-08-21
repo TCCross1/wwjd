@@ -1,0 +1,104 @@
+{
+  "theme": "light",
+  "mood": "Reverent, quiet, compassionate, organic, sacred space, warm",
+  "typography": {
+    "headings": {
+      "font": "Playfair Display",
+      "style": "serif, classic, elegant, tracking-tight, text-2xl to text-6xl max"
+    },
+    "body": {
+      "font": "Manrope",
+      "style": "sans-serif, clean, readable, leading-relaxed"
+    },
+    "scripture": {
+      "font": "Playfair Display",
+      "style": "italic, serif, text-xl md:text-2xl, leading-relaxed"
+    }
+  },
+  "colors": {
+    "background": {
+      "primary": "#FAFAF8",
+      "secondary": "#F5F3EB",
+      "card": "#FFFFFF"
+    },
+    "text": {
+      "primary": "#2D2824",
+      "secondary": "#635C53",
+      "muted": "#968F84"
+    },
+    "accent": {
+      "gold": "#D4AF37",
+      "terracotta": "#B85B3F",
+      "border": "#E6E1D6"
+    }
+  },
+  "visual_enhancers": {
+    "spacing": "Generous spacing philosophy (p-6, p-8, p-12). Create breathing room. No cramped elements.",
+    "borders": "Soft, 1px subtle borders (border-[#E6E1D6]). Very gentle rounded corners (rounded-xl, rounded-2xl).",
+    "shadows": "Minimal. Use subtle ambient shadows (shadow-sm, shadow-md) for elevation, avoid harsh or large drop shadows. It should feel like paper on a desk.",
+    "texture": "Subtle noise or parchment texture overlay is encouraged, but keep it extremely light so it doesn't distract.",
+    "glassmorphism": "Avoid heavy glassmorphism. Use solid warm backgrounds for a grounded, earthy feel. If transparency is needed, use it gently with high blur."
+  },
+  "layouts": {
+    "general": "Mobile-first, single-column reading flow, or simple dual-column on desktop. No dense bento boxes, no aggressive asymmetry. Focus on centering the human and the words. Center-align hero texts, left-align reading passages.",
+    "navigation": "Extremely minimal. Just a small WWJD text/logo and minimal essential links. Sticky with a soft solid background (not fully transparent).",
+    "hero": "Center the provided WWJD hero image prominently. Use soft, fading gradients to blend the image into the background if needed. Do not use generic full-screen overlays.",
+    "cards": "For Daily Scripture and Prayer: Flat, solid white or soft beige background, 1px subtle border, ample inner padding (p-8)."
+  },
+  "components": {
+    "buttons": "Pill-shaped (rounded-full) or rounded-lg. Soft gold or terracotta background for primary, with high contrast text. Smooth hover states.",
+    "inputs": "Clean, understated, 1px border, slightly rounded, focused state uses a soft gold ring.",
+    "modals": "Soft, rounded, warm background, quiet overlay (bg-black/20 backdrop-blur-sm).",
+    "shadcn_overrides": "Override all default Shadcn Vercel-look (black/white harsh contrast). Replace with warm grey borders and warm beige backgrounds."
+  },
+  "motion": {
+    "general": "Slow, intentional, quiet. Fade-ins (opacity 0 to 1), gentle slide-ups (translate-y-4 to 0). No bouncy, hyperactive, or fast animations.",
+    "duration": "500ms to 800ms for entrance animations."
+  },
+  "accessibility": {
+    "contrast": "Ensure text contrast is readable. Dark espresso text on warm beige passes WCAG.",
+    "focus": "Clear focus rings (soft gold) for keyboard navigation."
+  },
+  "media": {
+    "hero_image": "https://customer-assets-0z36b82j.emergentagent.net/job_b39f6f47-ff9c-4515-af3c-0519d718b371/artifacts/1xpiiqtg_C926EAB9-6D7D-4E95-94A4-4860FE2AA1DD.png",
+    "image_urls": [
+      {
+        "url": "https://images.unsplash.com/photo-1617720197345-5e5235ec6220?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NTYxOTB8MHwxfHNlYXJjaHwyfHxwZWFjZWZ1bCUyMHBlcnNvbiUyMHBvcnRyYWl0JTIwbmF0dXJlfGVufDB8fHx8MTc4NzMyMDg1MXww&ixlib=rb-4.1.0&q=85",
+        "description": "man in white shirt sitting on green grass field during sunset",
+        "category": "impact_testimonies_portrait"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1585424414894-3fea3841779d?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NTYxOTB8MHwxfHNlYXJjaHwzfHxwZWFjZWZ1bCUyMHBlcnNvbiUyMHBvcnRyYWl0JTIwbmF0dXJlfGVufDB8fHx8MTc4NzMyMDg1MXww&ixlib=rb-4.1.0&q=85",
+        "description": "woman in purple jacket standing in forest",
+        "category": "impact_testimonies_portrait"
+      },
+      {
+        "url": "https://images.pexels.com/photos/1744473/pexels-photo-1744473.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+        "description": "Serene woman outdoors in nature",
+        "category": "impact_testimonies_portrait"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1604223190546-a43e4c7f29d7?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NTYxNzV8MHwxfHNlYXJjaHwxfHx3YXJtJTIwc3Vuc2V0JTIwbW91bnRhaW4lMjBsYW5kc2NhcGV8ZW58MHx8fHwxNzg3MzIwODU4fDA&ixlib=rb-4.1.0&q=85",
+        "description": "Layered mountain ridges under a warm orange sky",
+        "category": "abstract_background_texture"
+      }
+    ]
+  },
+  "3d_libraries": {
+    "usage": "None recommended. 3D elements will break the simple, quiet, reverent, text-focused nature of this application."
+  },
+  "GENERAL_UI_UX_DESIGN_GUIDELINES": [
+    "No gamification, social feeds, or complex menus. Keep the interface as quiet and distraction-free as possible.",
+    "Do not use dark colors as gradients.",
+    "Create depth through subtle layered design elements and generous spacing, not heavy drop shadows.",
+    "DO NOT apply universal transitions (e.g., transition: all). Target specific properties like opacity, background-color, transform.",
+    "DO NOT center align the app container text-align. Allow natural left-aligned reading flow for long text (scriptures, prayers).",
+    "NEVER use generic AI emoji icons (🤖🧠💭💡🔮🎯). Use elegant, minimal SVG icons.",
+    "NEVER use placeholder image URLs. Use only the provided hero image and fetched image URLs.",
+    "All interactive and key informational elements MUST include a `data-testid` attribute (e.g., data-testid='gift-purchase-btn').",
+    "Use standard semantic HTML for structural elements, Shadcn UI components for complex interactions (forms, dialogs). Remember to use .js files, not .tsx.",
+    "Use 'sonner' for toast notifications, configured to match the warm earthy theme.",
+    "DO NOT use a completely transparent background for sticky headers or dropdowns. Ensure they have a solid or highly blurred background so text remains readable."
+  ],
+  "instructions_to_main_agent": "Use the provided hero image (exact URL) very prominently on the landing page and post-login areas. Style the site to feel warm, organic, and compassionate. Prioritize reading typography, utilizing 'Playfair Display' for scripture and 'Manrope' for body copy. Keep padding generous and interface minimal to evoke a sense of quietness and spiritual reflection. Provide .js files for all components, avoiding .tsx."
+}
