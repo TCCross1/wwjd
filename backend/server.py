@@ -25,6 +25,9 @@ from bson import ObjectId
 from emergentintegrations.llm.chat import LlmChat, UserMessage, TextDelta, StreamDone
 import random
 from scriptures import DAILY_SCRIPTURES, BLESSING_SCRIPTURES
+import asyncio
+from twilio.rest import Client as TwilioClient
+import resend
 
 # ---------------------------------------------------------------------------
 # Setup
@@ -48,6 +51,124 @@ _storage_key = None
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
+
+FRONTEND_URL = os.environ.get("FRONTEND_URL", "http://localhost:3000")
+
+# Notifications (Twilio SMS + Resend email) --------------------------------
+TWILIO_SID = os.environ.get("TWILIO_ACCOUNT_SID", "")
+TWILIO_TOKEN = os.environ.get("TWILIO_AUTH_TOKEN", "")
+TWILIO_FROM = os.environ.get("TWILIO_PHONE_NUMBER", "")
+RESEND_API_KEY = os.environ.get("RESEND_API_KEY", "")
+SENDER_EMAIL = os.environ.get("SENDER_EMAIL", "onboarding@resend.dev")
+
+def _to_e164(phone: str) -> Optional[str]:
+    if not phone:
+        return None
+    p = phone.strip()
+    if p.startswith("+"):
+        digits = "+" + "".join(ch for ch in p[1:] if ch.isdigit())
+        return digits if len(digits) > 5 else None
+    digits = "".join(ch for ch in p if ch.isdigit())
+    if len(digits) == 10:
+        return "+1" + digits
+    if len(digits) == 11 and digits.startswith("1"):
+        return "+" + digits
+    if len(digits) >= 8:
+        return "+" + digits
+    return None
+
+def send_sms(to_phone: str, body: str) -> bool:
+    if not (TWILIO_SID and TWILIO_TOKEN and TWILIO_FROM):
+        logger.info("SMS skipped — Twilio not configured")
+        return False
+    to = _to_e164(to_phone)
+    if not to:
+        logger.info(f"SMS skipped — invalid phone: {to_phone}")
+        return False
+    try:
+        client_tw = TwilioClient(TWILIO_SID, TWILIO_TOKEN)
+        msg = client_tw.messages.create(to=to, from_=TWILIO_FROM, body=body)
+        logger.info(f"SMS sent to {to}: {msg.sid}")
+        return True
+    except Exception as e:
+        logger.error(f"SMS send failed: {e}")
+        return False
+
+async def send_email(to_email: str, subject: str, html: str) -> bool:
+    if not (RESEND_API_KEY and to_email):
+        logger.info("Email skipped — Resend not configured or no recipient")
+        return False
+    try:
+        resend.api_key = RESEND_API_KEY
+        params = {"from": SENDER_EMAIL, "to": [to_email], "subject": subject, "html": html}
+        result = await asyncio.to_thread(resend.Emails.send, params)
+        logger.info(f"Email sent to {to_email}: {result.get('id') if isinstance(result, dict) else result}")
+        return True
+    except Exception as e:
+        logger.error(f"Email send failed: {e}")
+        return False
+
+def _email_shell(inner_html: str) -> str:
+    return f"""<!doctype html><html><body style="margin:0;background:#FAFAF8;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#FAFAF8;padding:32px 0;">
+<tr><td align="center">
+<table width="520" cellpadding="0" cellspacing="0" style="background:#FFFFFF;border:1px solid #E6E1D6;border-radius:16px;overflow:hidden;font-family:Georgia,'Times New Roman',serif;">
+<tr><td style="background:#F5F3EB;padding:28px 32px;text-align:center;border-bottom:1px solid #E6E1D6;">
+<div style="font-size:22px;letter-spacing:2px;color:#2D2824;">W.W.J.D.</div>
+<div style="font-size:12px;color:#968F84;letter-spacing:1px;">WHAT WOULD JESUS DO?</div>
+</td></tr>
+<tr><td style="padding:32px;color:#2D2824;font-size:16px;line-height:1.7;">{inner_html}</td></tr>
+<tr><td style="padding:20px 32px;background:#F5F3EB;border-top:1px solid #E6E1D6;color:#968F84;font-size:12px;text-align:center;">
+Every dollar goes to help free people still trapped in the grip of addiction.</td></tr>
+</table></td></tr></table></body></html>"""
+
+def _blessing_block(blessing: dict) -> str:
+    return (f'<div style="margin:22px 0;padding:20px;background:#F5F3EB;border-radius:12px;">'
+            f'<div style="font-style:italic;font-size:18px;color:#2D2824;">&ldquo;{blessing["quote"]}&rdquo;</div>'
+            f'<div style="margin-top:8px;color:#D4AF37;font-weight:bold;font-size:14px;">{blessing["reference"]}</div></div>')
+
+async def notify_gift_paid(gift: dict, payer_email: Optional[str]):
+    code = gift.get("activation_code")
+    link = f"{FRONTEND_URL}/activate?code={code}"
+    name = gift.get("recipient_name") or "your friend"
+    phone = gift.get("recipient_phone")
+    # 1) Text the recipient the gift link
+    if phone:
+        sms_body = (f"Someone gave you a gift — W.W.J.D., a quiet place to bring whatever is weighing "
+                    f"on you and receive counsel drawn from the life and words of Jesus. "
+                    f"Open it and set up your login here: {link}")
+        sent = send_sms(phone, sms_body)
+        await db.gifts.update_one({"id": gift["id"]}, {"$set": {"sms_sent": sent}})
+    # 2) Thank-you email to the giver
+    if payer_email:
+        blessing = random.choice(BLESSING_SCRIPTURES)
+        inner = (
+            f"<p>Thank you for your gift.</p>"
+            f"<p>You've given <strong>{name}</strong> one month of W.W.J.D. — a quiet place to bring "
+            f"whatever is weighing on them and receive counsel drawn from the life and words of Jesus. "
+            f"Your dollar now goes to help set someone free from the grip of addiction.</p>"
+            f'<p>Send them this link so they can open it and set up their own login:</p>'
+            f'<p><a href="{link}" style="color:#B85B3F;">{link}</a></p>'
+            f'<p style="color:#635C53;">Or share the code <strong>{code}</strong> to redeem at {FRONTEND_URL}/activate</p>'
+            f"{_blessing_block(blessing)}"
+        )
+        await send_email(payer_email, "Thank you for your gift of W.W.J.D.", _email_shell(inner))
+
+async def notify_donation_paid(txn: dict, payer_email: Optional[str]):
+    if not payer_email:
+        return
+    blessing = random.choice(BLESSING_SCRIPTURES)
+    amount = (txn.get("amount") or 0) / 100
+    name = (txn.get("donor_name") or "").strip() or "friend"
+    inner = (
+        f"<p>Thank you, {name}.</p>"
+        f"<p>Your gift of <strong>${amount:.2f}</strong> goes to help set people free from the "
+        f"stranglehold of addiction. You are now among the angels of freedom.</p>"
+        f"{_blessing_block(blessing)}"
+        f'<p style="color:#635C53;">&ldquo;Freely you have received; freely give.&rdquo; — Matthew 10:8</p>'
+    )
+    await send_email(payer_email, "A blessing over you — thank you for your gift", _email_shell(inner))
+
 
 app = FastAPI()
 api_router = APIRouter(prefix="/api")
@@ -639,6 +760,12 @@ async def _finalize_paid(session_id, subscription_id=None, payment_intent=None):
     )
     if not res.modified_count:
         return
+    payer_email = None
+    try:
+        s = stripe.checkout.Session.retrieve(session_id)
+        payer_email = (s.get("customer_details") or {}).get("email")
+    except stripe.error.StripeError:
+        pass
     txn = await db.payment_transactions.find_one({"session_id": session_id})
     if txn and txn.get("type") == "donation":
         await db.angels.insert_one({
@@ -649,9 +776,13 @@ async def _finalize_paid(session_id, subscription_id=None, payment_intent=None):
             "user_id": txn.get("user_id"),
             "created_at": now,
         })
+        await notify_donation_paid(txn, payer_email)
     else:
         await db.gifts.update_one({"session_id": session_id, "status": "pending"},
                                   {"$set": {"status": "paid", "paid_at": now}})
+        gift = await db.gifts.find_one({"session_id": session_id})
+        if gift:
+            await notify_gift_paid(gift, payer_email)
 
 # kept for backward compatibility
 async def _mark_gift_paid(session_id, subscription_id=None, payment_intent=None):
