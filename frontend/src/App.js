@@ -19,6 +19,9 @@ import Stories from "@/pages/Stories";
 import PayForward from "@/pages/PayForward";
 import Donate from "@/pages/Donate";
 import DonateSuccess from "@/pages/DonateSuccess";
+import TeachingHome from "@/pages/teaching/TeachingHome";
+import BookVisit from "@/pages/teaching/BookVisit";
+import Beside from "@/pages/teaching/Beside";
 
 function App() {
   return (
@@ -47,6 +50,9 @@ function App() {
               <Route path="/counsel" element={<ProtectedRoute><Counsel /></ProtectedRoute>} />
               <Route path="/diary" element={<ProtectedRoute><Diary /></ProtectedRoute>} />
               <Route path="/pay-it-forward" element={<ProtectedRoute><PayForward /></ProtectedRoute>} />
+              <Route path="/word" element={<TeachingHome />} />
+              <Route path="/word/beside" element={<Beside />} />
+              <Route path="/word/:id" element={<BookVisit />} />
             </Routes>
           </main>
           <Toaster

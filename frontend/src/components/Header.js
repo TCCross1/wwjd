@@ -17,11 +17,13 @@ export function Header() {
         { to: "/counsel", label: "Counsel" },
         { to: "/diary", label: "Diary" },
         { to: "/stories", label: "Stories of Freedom" },
+        { to: "/word", label: "The Word" },
         { to: "/donate", label: "Donate" },
         { to: "/pay-it-forward", label: "Give This Gift" },
       ]
     : [
         { to: "/", label: "Home" },
+        { to: "/word", label: "The Word" },
         { to: "/stories", label: "Stories of Freedom" },
         { to: "/donate", label: "Donate" },
         { to: "/gift", label: "Give a Gift" },
